@@ -24,7 +24,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist", // Thư mục chứa file .js sau khi biên dịch
-    "rootDir": "src",
+    "rootDir": "src"
 
   }
 }
