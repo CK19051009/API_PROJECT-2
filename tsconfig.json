@@ -23,7 +23,6 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    // "typeRoots": ["./node_modules/@types", "./types"]
     "outDir": "./dist", // Thư mục chứa file .js sau khi biên dịch
 
   }
