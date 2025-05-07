@@ -51,6 +51,8 @@ router.get("/singer/:idSinger", controller.songOfSinger);
 router.get("/topic/:idTopic", controller.songOfTopic);
 //[GET] /client/songs/listens
 router.get("/listens", controller.listenMuch);
+// [PATCH] /client/songs/increase-view/:idSong
+router.patch("/increase-view/:idSong", controller.increaseView);
 //[GET] /client/songs/wishlist
 router.get("/wishlist", middleware.middlewareAuthen, controller.wishlist);
 //[PATCH] /client/songs/wishlist/:statusWishList/:idSong

@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.search = exports.changeWishList = exports.wishlist = exports.listenMuch = exports.songOfTopic = exports.songOfSinger = exports.detailSong = exports.index = void 0;
+exports.increaseView = exports.search = exports.changeWishList = exports.wishlist = exports.listenMuch = exports.songOfTopic = exports.songOfSinger = exports.detailSong = exports.index = void 0;
 const singer_model_1 = __importDefault(require("../../models/singer.model"));
 const song_model_1 = __importDefault(require("../../models/song.model"));
 const topic_model_1 = __importDefault(require("../../models/topic.model"));
 const client_model_1 = __importDefault(require("../../models/client.model"));
 const unidecode_1 = __importDefault(require("unidecode"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const render = (lists) => __awaiter(void 0, void 0, void 0, function* () {
     const data = yield Promise.all(lists.map((list) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -260,7 +261,7 @@ function createSlug(keyword) {
         .replace(/[\s]+/g, "-") // thay space bằng dấu cách
         .replace(/^-+|-+$/g, ""); // loại bỏ gạch đầu dòng;
 }
-//[GET] /clien/songs/search
+//[GET] /client/songs/search
 const search = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { keyword = null, page = 1 } = req.query;
@@ -295,3 +296,36 @@ const search = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.search = search;
+// [PATCH] /clinet/songs/increase-view/:idSong
+const increaseView = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const idSong = req.params.idSong;
+        const song = yield song_model_1.default.findOne({ deleted: false, _id: idSong });
+        if (!mongoose_1.default.Types.ObjectId.isValid(idSong) || !song) {
+            return res.status(400).json({
+                success: false,
+                message: "Id bài hát không hợp lệ!",
+                code: 400
+            });
+        }
+        yield song_model_1.default.updateOne({ _id: idSong, deleted: false }, {
+            $set: {
+                listen: song.listen + 1
+            }
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Tăng lượt nghe thành công",
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        console.error("Lỗi ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Lỗi server",
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+exports.increaseView = increaseView;
