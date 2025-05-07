@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import Topic from "../../models/topic.model";
 import Client from "../../models/client.model";
 import unidecode from "unidecode"
-import ISong from "../../interfaces/song.interface";
+import mongoose from "mongoose";
 const render = async (lists: any) => {
   const data = await Promise.all(
     lists.map(async (list: any) => {
@@ -269,7 +269,7 @@ function createSlug(keyword: string) {
     .replace(/[\s]+/g, "-") // thay space bằng dấu cách
     .replace(/^-+|-+$/g, ""); // loại bỏ gạch đầu dòng;
 }
-//[GET] /clien/songs/search
+//[GET] /client/songs/search
 export const search = async  (req:Request , res:Response):Promise<any> => {
   try {
     const { keyword = null, page = 1 } = req.query;
@@ -301,6 +301,40 @@ export const search = async  (req:Request , res:Response):Promise<any> => {
     return res.status(500).json({
       success: false,
       message: "Lỗi server",
+    });
+  }
+}
+
+// [PATCH] /clinet/songs/increase-view/:idSong
+export const increaseView = async (req :Request , res:Response):Promise<any> => {
+  try {
+    const idSong = req.params.idSong;
+    const song:any  = await Song.findOne({deleted :false, _id : idSong})
+    if(!mongoose.Types.ObjectId.isValid(idSong) || !song ){
+        return res.status(400).json({
+          success: false,
+          message: "Id bài hát không hợp lệ!",
+          code: 400
+        })
+    }
+    await Song.updateOne({_id: idSong , deleted : false}, {
+      $set: {
+        listen : song.listen + 1
+      }
+    })
+
+    return res.status(200).json({
+      success: true, 
+      message: "Tăng lượt nghe thành công",
+      timestamp: new Date().toISOString()
+    })
+
+  } catch (error) {
+    console.error("Lỗi ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      timestamp: new Date().toISOString()
     });
   }
 }
